@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +22,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![],
             comparator,
         }
     }
@@ -37,11 +36,36 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count = self.items.len();
+        // 调整heap
+        println!("self.count:{:?}", self.count);
+        let mut current_idx = self.items.len() - 1;
+        let mut parent_idx = self.parent_idx(current_idx);
+
+        if self.count < 2 {
+            return;
+        }
+        while (self.comparator)(
+            self.items.get(current_idx).expect("not found"),
+            self.items.get(parent_idx).expect("not found"),
+        ) {
+            println!("swap current:{:?}, parent:{:?}", current_idx, parent_idx);
+
+            self.items.swap(current_idx, parent_idx);
+
+            current_idx = parent_idx;
+            parent_idx = self.parent_idx(current_idx);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
-        idx / 2
+
+        if idx < 1 {
+            return 0;
+        }
+
+        (idx - 1) / 2
     }
 
     fn children_present(&self, idx: usize) -> bool {
@@ -49,16 +73,16 @@ where
     }
 
     fn left_child_idx(&self, idx: usize) -> usize {
-        idx * 2
+        idx * 2 + 1
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
-        self.left_child_idx(idx) + 1
+        self.left_child_idx(idx) + 2
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        0
     }
 }
 
@@ -84,8 +108,13 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        self.count -= 1;
+
+        let val = self.items.remove(0);
+        Some(val)
     }
 }
 
@@ -144,6 +173,8 @@ mod tests {
         heap.add(2);
         heap.add(9);
         heap.add(11);
+        println!("self.items:{:?}", heap.items);
+        println!("1/2:{:?}", 1 / 2);
         assert_eq!(heap.len(), 4);
         assert_eq!(heap.next(), Some(11));
         assert_eq!(heap.next(), Some(9));

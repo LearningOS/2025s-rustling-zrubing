@@ -7,6 +7,8 @@
 // Execute `rustlings hint from_into` or use the `hint` watch subcommand for a
 // hint.
 
+use std::str::Split;
+
 #[derive(Debug)]
 struct Person {
     name: String,
@@ -40,16 +42,43 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.len() == 0 {
+            return Person::default();
+        }
+        let mut split: Vec<&str> = s.split(',').collect();
+
+        if (&split).len() != 2 as usize {
+            return Person::default();
+        }
+
+        let name = split.get(0);
+        let age = split.get(1);
+
+        match (name, age) {
+            (Some(&""), _) => Person::default(),
+            (Some(n), Some(a)) => {
+                println!("name:{},age:{}", n, a);
+                let age_res = a.parse::<usize>();
+                if age_res.is_err() {
+                    return Person::default();
+                }
+                return Person {
+                    name: n.to_string(),
+                    age: age_res.unwrap(),
+                };
+            }
+            (_, _) => Person::default(),
+        }
     }
 }
 
 fn main() {
     // Use the `from` function
     let p1 = Person::from("Mark,20");
+    // let s1:&String = &p1.into();
     // Since From is implemented for Person, we should be able to use Into
     let p2: Person = "Gerald,70".into();
     println!("{:?}", p1);
